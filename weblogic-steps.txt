@@ -1,0 +1,171 @@
+Weblogic silent installation 
+
+Pre-requisites
+=================
+
+1.Create mount point with size of 20GB 
+         lvcreate -n oralv1 -L 10G rootvg  ==>I used rootvg , you can create your own VG rather than using the rootvg 
+         mkfs.ext3 /dev/rootvg/oralv1
+         mkdir -p /u01/app
+         mount /dev/rootvg/oralv1 /u01/app
+Check the mount point ,df -hT
+
+2.Create oinstall group and oracle user with home directory /u01/app
+   groupadd oinstall
+   
+   useradd -m -d /u01/app -g oinstall oracle
+3.chown -R oracle:install /u01/app 
+
+4. su - oracle
+    4.1  pwd    ==>Make sure your are in /u01/app directory 
+    4.2 mkdir /u01/app/softwares ,mkdir /u01/app/softwares/jdk, mkdir /u01/app/softwares/weblogic ,mkdir /u01/app/oracle ,mkdir /u01/app 
+    4.3  upload/copy the JDK binaries to /u01/app/softwares/jdk  
+          SCP from other Linux server scp jdk-11.0.18_linux-x64_bin.tar.gz 20.163.190.101:/u01/app/softwares/jdk/
+    4.4  upload/copy the weblgic binaries to /u01/app/softwares/weblogic
+          SCP from other Linux server scp fmw_14.1.1.0.0_wls_lite_quick_Disk1_1of1.zip 20.163.190.101:/u01/app/softwares/weblogic/
+         
+   
+
+Installation of weblogic 
+
+ 1. Install the JDK , cd /u01/app/oracle
+     
+      tar -xzvf /u01/app/softwares/jdk/jdk-11.0.18_linux-x64_bin.tar.gz
+2.
+[oracle@vm2 oracle]$ ls -tlr
+total 4
+drwxr-xr-x. 9 oracle oinstall 4096 Feb  6 07:44 jdk-11.0.18
+[oracle@vm2 oracle]$
+
+3./u01/app/oracle/jdk-11.0.18/bin/java --version
+
+./java -version
+
+4.cd /u01/app/softwares/weblogic/
+   unzip fmw_14.1.1.0.0_wls_lite_quick_Disk1_1of1.zip 
+5.Create wls.rsp file and oraInst.loc 
+     vi wls.rsp
+       
+[ENGINE]
+Response File Version=1.0.0.0.0
+[GENERIC]
+ORACLE_HOME=/u01/app/oracle/middleware
+INSTALL_TYPE=WebLogic Server
+MYORACLESUPPORT_USERNAME=
+MYORACLESUPPORT_PASSWORD=
+DECLINE_SECURITY_UPDATES=true
+SECURITY_UPDATES_VIA_MYORACLESUPPORT=false
+PROXY_HOST=
+PROXY_PORT=
+PROXY_USER=
+PROXY_PWD=
+COLLECTOR_SUPPORTHUB_URL=
+:wq!
+
+ vi  
+inventory_loc=/u01/app/oraInventory
+inst_group=oinstall
+
+6.Installation of weblogic 
+  cd /u01/app
+
+/u01/app/oracle/jdk-11.0.18/bin/java -Xmx1024m -jar /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_quick_generic.jar -silent -responseFile /u01/app/softwares/weblogic/wls.rsp -invPtrLoc /u01/app/softwares/weblogic/oraInst.loc
+
+	 
+	
+7.if you receive any error space is not enough in /tmp  ==<do below changes with root user>
+lvextend -r -L +2G /dev/mapper/rootvg-tmplv
+
+8.If you receive any swap size issue like below
+Checking if CPU speed is above 300 MHz.   Actual 2593.906 MHz    Passed
+Checking swap space: must be greater than 512 MB.   Actual 0 MB    Failed <<<<
+Checking temp space: must be greater than 300 MB.   Actual 4770 MB    Passed
+
+ Steps to create swap space  
+fallocate -l 2G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+swapon --show
+
+From <https://linuxconcept.com/how-to-add-swap-space-on-red-hat-8-operating-system/> 
+
+Fix above two issues then again su - oracle 
+
+/u01/app/oracle/jdk-11.0.18/bin/java -Xmx1024m -jar /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_quick_generic.jar -silent -responseFile /u01/app/softwares/weblogic/wls.rsp -invPtrLoc /u01/app/softwares/weblogic/oraInst.loc
+
+After successful installation , you will be able to see below additional directories. 
+
+
+
+
+[oracle@vm2 ~]$ pwd
+/u01/app
+[oracle@vm2 ~]$ ls -tlr
+total 32
+drwx------. 2 oracle oinstall 16384 Feb  6 07:18 lost+found
+drwxr-xr-x. 4 oracle oinstall  4096 Feb  6 07:34 softwares
+drwxr-xr-x. 3 oracle oinstall  4096 Feb  6 07:44 oracle
+drwxrwx---. 6 oracle oinstall  4096 Feb  6 08:13 oraInventory
+drwxr-x---. 9 oracle oinstall  4096 Feb  6 08:15 wls1411
+[oracle@vm2 ~]$ pwd
+/u01/app
+[oracle@vm2 ~]$
+
+	9. Need to create domains in silent mode
+	Mkdir /u01/app/scripts
+	   vi domain.xml
+	
+readTemplate('/u01/app/wls1411/wlserver/common/templates/wls/wls.jar')     ==>change this path if it is different . 
+cd('Servers/AdminServer')
+set('ListenAddress','')
+set('ListenPort', 7001)
+create('AdminServer','SSL')
+cd('SSL/AdminServer')
+set('Enabled', 'True')
+set('ListenPort', 7002)
+cd('/')
+cd('Security/base_domain/User/weblogic')
+cmo.setPassword('welcome1')
+setOption('OverwriteDomain', 'true')
+writeDomain('/u01/app/oracle/config/domains/testdomain1')   ==>verify this domain directory created 
+closeTemplate()
+exit()
+:wq!
+
+
+	1. cd /u01/app/wls1411/wlserver/common/bin
+	2. ./wlst.sh /u01/app/scripts/domain.xml    ==>wait for to complete the configuration 
+           
+WARNING: This is a deprecated script. Please invoke the wlst.sh script under oracle_common/common/bin.
+
+Initializing WebLogic Scripting Tool (WLST) ...
+
+Welcome to WebLogic Server Administration Scripting Shell
+
+Type help() for help on available commands
+
+
+
+Exiting WebLogic Scripting Tool.
+
+
+	1. cd /u01/app/oracle/config/domains/testdomain1/bin
+	2. nohup ./startWebLogic.sh &  ==>to start the weblogic services 
+    3. ps -ef|grep -I weblogic
+    4  netstat -tulpn   ==>Check the status of of the listening ports , weblgic should be listening on 7001 and 7002 
+
+
+
+
+	
+	
+
+
+
+
+   
+     
+
+
+

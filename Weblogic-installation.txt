@@ -1,0 +1,550 @@
+[root@vm2 ~]# lvcreate -n oralv1 -L 10G rootvg
+  Logical volume "oralv1" created.
+[root@vm2 ~]# mkfs.ext3 /dev/rootvg/oralv1
+mke2fs 1.45.6 (20-Mar-2020)
+Discarding device blocks: done
+Creating filesystem with 2621440 4k blocks and 655360 inodes
+Filesystem UUID: b9561c53-7a38-41cc-bcd7-82019297250f
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (16384 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+[root@vm2 ~]# mkfs.ext3 /dev/rootvg/oralv1
+mke2fs 1.45.6 (20-Mar-2020)
+/dev/rootvg/oralv1 contains a ext3 file system
+        created on Mon Feb  6 07:18:13 2023
+Proceed anyway? (y,N) ^C
+[root@vm2 ~]# mkdir -p /u01/app
+[root@vm2 ~]#  mount /dev/rootvg/oralv1 /u01/app
+[root@vm2 ~]# df -hT
+Filesystem                Type      Size  Used Avail Use% Mounted on
+devtmpfs                  devtmpfs  3.8G     0  3.8G   0% /dev
+tmpfs                     tmpfs     3.8G     0  3.8G   0% /dev/shm
+tmpfs                     tmpfs     3.8G  8.6M  3.8G   1% /run
+tmpfs                     tmpfs     3.8G     0  3.8G   0% /sys/fs/cgroup
+/dev/mapper/rootvg-rootlv xfs        14G  1.9G   13G  14% /
+/dev/mapper/rootvg-usrlv  xfs        10G  1.8G  8.3G  18% /usr
+/dev/sda1                 xfs       496M  181M  315M  37% /boot
+/dev/sda15                vfat      495M  5.8M  489M   2% /boot/efi
+/dev/mapper/rootvg-tmplv  xfs       6.0G  2.8G  3.2G  47% /tmp
+/dev/mapper/rootvg-varlv  xfs       8.0G  637M  7.4G   8% /var
+/dev/mapper/rootvg-homelv xfs       5.0G  2.9G  2.2G  57% /home
+/dev/sdb1                 ext4       16G   45M   15G   1% /mnt
+tmpfs                     tmpfs     777M     0  777M   0% /run/user/1000
+/dev/mapper/rootvg-oralv1 ext3      9.8G   23M  9.3G   1% /u01/app
+[root@vm2 ~]# groupadd oinstall
+[root@vm2 ~]# useradd -m -d /u01/app -g oinstall oracle1
+useradd: warning: the home directory already exists.
+Not copying any file from skel directory into it.
+
+
+[oracle@vm2 ~]$ df -hT
+Filesystem                Type      Size  Used Avail Use% Mounted on
+devtmpfs                  devtmpfs  3.8G     0  3.8G   0% /dev
+tmpfs                     tmpfs     3.8G     0  3.8G   0% /dev/shm
+tmpfs                     tmpfs     3.8G  8.6M  3.8G   1% /run
+tmpfs                     tmpfs     3.8G     0  3.8G   0% /sys/fs/cgroup
+/dev/mapper/rootvg-rootlv xfs        14G  1.9G   13G  14% /
+/dev/mapper/rootvg-usrlv  xfs        10G  1.8G  8.3G  18% /usr
+/dev/sda1                 xfs       496M  181M  315M  37% /boot
+/dev/sda15                vfat      495M  5.8M  489M   2% /boot/efi
+/dev/mapper/rootvg-tmplv  xfs       6.0G  2.8G  3.2G  47% /tmp
+/dev/mapper/rootvg-varlv  xfs       8.0G  658M  7.4G   9% /var
+/dev/mapper/rootvg-homelv xfs       5.0G  2.9G  2.2G  57% /home
+/dev/sdb1                 ext4       16G   45M   15G   1% /mnt
+tmpfs                     tmpfs     777M     0  777M   0% /run/user/1000
+/dev/mapper/rootvg-oralv1 ext3      9.8G   23M  9.3G   1% /u01/app
+[oracle@vm2 ~]$ mkdir /u01/app/softwares
+[oracle@vm2 ~]$ mkdir /u01/app/softwares/jdk
+[oracle@vm2 ~]$ mkdir /u01/app/softwares/weblogic
+[oracle@vm2 ~]$ mkdir /u01/app/oracle
+[oracle@vm2 ~]$
+
+
+
+oracle@vm1 softwares]$ scp jdk-11.0.18_linux-x64_bin.tar.gz 20.163.190.101:/u01/app/softwares/jdk/
+The authenticity of host '20.163.190.101 (20.163.190.101)' can't be established.
+ECDSA key fingerprint is SHA256:j1VMJJDl6PhIyW+LJeRXthGBfpumHYbZwBAtfMzBPBA.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '20.163.190.101' (ECDSA) to the list of known hosts.
+oracle@20.163.190.101's password:
+jdk-11.0.18_linux-x64_bin.tar.gz                                                                                                                                            100%  161MB 109.3MB/s   00:01
+[oracle@vm1 softwares]$ scp fmw_14.1.1.0.0_wls_lite_quick_Disk1_1of1.zip 20.163.190.101:/u01/app/softwares/weblogic/
+oracle@20.163.190.101's password:
+fmw_14.1.1.0.0_wls_lite_quick_Disk1_1of1.zip                                                                                                                                100%  253MB 109.8MB/s   00:02
+[oracle@vm1 softwares]$
+
+
+20.163.190.101[oracle@vm2 ~]$ cd /u01/app/oracle
+[oracle@vm2 oracle]$  tar -xzvf /u01/app/softwares/jdk/jdk-11.0.18_linux-x64_bin.tar.gz
+jdk-11.0.18/README.html
+jdk-11.0.18/bin/jar
+jdk-11.0.18/bin/jarsigner
+jdk-11.0.18/bin/java
+jdk-11.0.18/bin/javac
+jdk-11.0.18/bin/javadoc
+jdk-11.0.18/bin/javap
+jdk-11.0.18/bin/jcmd
+jdk-11.0.18/bin/jconsole
+jdk-11.0.18/bin/jdb
+jdk-11.0.18/bin/jdeprscan
+jdk-11.0.18/bin/jdeps
+jdk-11.0.18/bin/jfr
+jdk-11.0.18/bin/jhsdb
+jdk-11.0.18/bin/jimage
+jdk-11.0.18/bin/jinfo
+jdk-11.0.18/bin/jjs
+jdk-11.0.18/bin/jlink
+jdk-11.0.18/bin/jmap
+jdk-11.0.18/bin/jmod
+jdk-11.0.18/bin/jps
+jdk-11.0.18/bin/jrunscript
+jdk-11.0.18/bin/jshell
+jdk-11.0.18/bin/jstack
+jdk-11.0.18/bin/jstat
+jdk-11.0.18/bin/jstatd
+jdk-11.0.18/bin/keytool
+jdk-11.0.18/bin/pack200
+jdk-11.0.18/bin/rmic
+jdk-11.0.18/bin/rmid
+jdk-11.0.18/bin/rmiregistry
+jdk-11.0.18/bin/serialver
+jdk-11.0.18/bin/unpack200
+jdk-11.0.18/conf/logging.properties
+jdk-11.0.18/conf/management/jmxremote.access
+jdk-11.0.18/conf/management/jmxremote.password.template
+jdk-11.0.18/conf/management/management.properties
+jdk-11.0.18/conf/net.properties
+jdk-11.0.18/conf/security/java.policy
+jdk-11.0.18/conf/security/java.security
+jdk-11.0.18/conf/security/policy/README.txt
+jdk-11.0.18/conf/security/policy/limited/default_US_export.policy
+jdk-11.0.18/conf/security/policy/limited/default_local.policy
+jdk-11.0.18/conf/security/policy/limited/exempt_local.policy
+jdk-11.0.18/conf/security/policy/unlimited/default_US_export.policy
+jdk-11.0.18/conf/security/policy/unlimited/default_local.policy
+jdk-11.0.18/conf/sound.properties
+jdk-11.0.18/include/classfile_constants.h
+jdk-11.0.18/include/jawt.h
+jdk-11.0.18/include/jdwpTransport.h
+jdk-11.0.18/include/jni.h
+jdk-11.0.18/include/jvmti.h
+jdk-11.0.18/include/jvmticmlr.h
+jdk-11.0.18/include/linux/jawt_md.h
+jdk-11.0.18/include/linux/jni_md.h
+jdk-11.0.18/include/sizecalc.h
+jdk-11.0.18/jmods/java.base.jmod
+jdk-11.0.18/jmods/java.compiler.jmod
+jdk-11.0.18/jmods/java.datatransfer.jmod
+jdk-11.0.18/jmods/java.desktop.jmod
+
+[oracle@vm2 bin]$ pwd
+/u01/app/oracle/jdk-11.0.18/bin
+[oracle@vm2 bin]$ ls -tlr
+total 620
+-rwxr-xr-x. 1 oracle oinstall 121568 Dec  6 15:53 unpack200
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 serialver
+-rwxr-xr-x. 1 oracle oinstall  12872 Dec  6 15:53 rmiregistry
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 rmid
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 rmic
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 pack200
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 keytool
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jstatd
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jstat
+-rwxr-xr-x. 1 oracle oinstall  12896 Dec  6 15:53 jstack
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jshell
+-rwxr-xr-x. 1 oracle oinstall  12904 Dec  6 15:53 jrunscript
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jps
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jmod
+-rwxr-xr-x. 1 oracle oinstall  12896 Dec  6 15:53 jmap
+-rwxr-xr-x. 1 oracle oinstall  12896 Dec  6 15:53 jlink
+-rwxr-xr-x. 1 oracle oinstall  12896 Dec  6 15:53 jjs
+-rwxr-xr-x. 1 oracle oinstall  12896 Dec  6 15:53 jinfo
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jimage
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jhsdb
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jfr
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jdeps
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jdeprscan
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jdb
+-rwxr-xr-x. 1 oracle oinstall  12912 Dec  6 15:53 jconsole
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jcmd
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 javap
+-rwxr-xr-x. 1 oracle oinstall  12896 Dec  6 15:53 javadoc
+-rwxr-xr-x. 1 oracle oinstall  12896 Dec  6 15:53 javac
+-rwxr-xr-x. 1 oracle oinstall  12848 Dec  6 15:53 java
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jarsigner
+-rwxr-xr-x. 1 oracle oinstall  12864 Dec  6 15:53 jar
+[oracle@vm2 bin]$ ./java -version
+java version "11.0.18" 2023-01-17 LTS
+Java(TM) SE Runtime Environment 18.9 (build 11.0.18+9-LTS-195)
+Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.18+9-LTS-195, mixed mode)
+[oracle@vm2 bin]$
+
+
+[oracle@vm2 bin]$ cd ~
+[oracle@vm2 ~]$ pwd
+/u01/app
+[oracle@vm2 ~]$ cd softwares/
+[oracle@vm2 softwares]$ ls -ltr
+total 8
+drwxr-xr-x. 2 oracle oinstall 4096 Feb  6 07:37 jdk
+drwxr-xr-x. 2 oracle oinstall 4096 Feb  6 07:38 weblogic
+[oracle@vm2 softwares]$ cd weblogic/
+[oracle@vm2 weblogic]$ ls -ltr
+total 259024
+-rw-r--r--. 1 oracle oinstall 264972920 Feb  6 07:38 fmw_14.1.1.0.0_wls_lite_quick_Disk1_1of1.zip
+[oracle@vm2 weblogic]$ unzip fmw_14.1.1.0.0_wls_lite_quick_Disk1_1of1.zip
+Archive:  fmw_14.1.1.0.0_wls_lite_quick_Disk1_1of1.zip
+  inflating: fmw_14.1.1.0.0_wls_lite_quick_generic.jar
+[oracle@vm2 weblogic]$
+
+
+[oracle@vm2 oracle]$ /u01/app/oracle/jdk-11.0.18/bin/java -Xmx1024m -jar fmw_14.1.1.0.0_wls_lite_generic.jar -silent -responseFile /u01/app/softwares/weblogic/wls.rsp -invPtrLoc /u01/app/softwares/weblogic/oraInst.loc
+Error: Unable to access jarfile fmw_14.1.1.0.0_wls_lite_generic.jar
+[oracle@vm2 oracle]$ /u01/app/oracle/jdk-11.0.18/bin/java -Xmx1024m -jar /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_generic.jar -silent -responseFile /u01/app/softwares/weblogic/wls.rsp -invPtrLoc /u01/app/softwares/weblogic/oraInst.loc
+Error: Unable to access jarfile /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_generic.jar
+[oracle@vm2 oracle]$ ls -ltr /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_generic.jar
+ls: cannot access '/u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_generic.jar': No such file or directory
+[oracle@vm2 oracle]$ cd /u01/app/softwares/weblogic/
+[oracle@vm2 weblogic]$ ls -ltr
+total 518368
+-rw-r--r--. 1 oracle oinstall 265291871 Jul 22  2020 fmw_14.1.1.0.0_wls_lite_quick_generic.jar
+-rw-r--r--. 1 oracle oinstall 264972920 Feb  6 07:38 fmw_14.1.1.0.0_wls_lite_quick_Disk1_1of1.zip
+-rw-r--r--. 1 oracle oinstall       317 Feb  6 07:58 wls.rsp
+-rw-r--r--. 1 oracle oinstall        56 Feb  6 07:58 oraInst.loc
+[oracle@vm2 weblogic]$ pwd
+/u01/app/softwares/weblogic
+[oracle@vm2 weblogic]$ ls -ltr /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_generic.jar
+ls: cannot access '/u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_generic.jar': No such file or directory
+[oracle@vm2 weblogic]$ ls -ltr /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_quick_generic.jar
+-rw-r--r--. 1 oracle oinstall 265291871 Jul 22  2020 /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_quick_generic.jar
+[oracle@vm2 weblogic]$ /u01/app/oracle/jdk-11.0.18/bin/java -Xmx1024m -jar /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_quick_generic.jar -silent -responseFile /u01/app/softwares/weblogic/wls.rsp -invPtrLoc /u01/app/softwares/weblogic/oraInst.loc
+Launcher log file is /tmp/OraInstall2023-02-06_08-05-54AM/launcher2023-02-06_08-05-54AM.log.
+Extracting the installer . . . . Done
+Checking if CPU speed is above 300 MHz.   Actual 2593.906 MHz    Passed
+Checking swap space: must be greater than 512 MB.   Actual 0 MB    Failed <<<<
+Checking temp space: must be greater than 300 MB.   Actual 2996 MB    Passed
+
+/u01/app/oracle/jdk-11.0.18/bin/java -Xmx1024m -jar fmw_14.1.1.0.0_wls_lite_generic.jar -silent -responseFile /u01/app/softwares/wls.rsp -invPtrLoc /u01/app/softwares/oraInst.loc
+Launcher log file is /tmp/OraInstall2023-02-06_04-29-29AM/launcher2023-02-06_04-29-29AM.log.
+Extracting the installer . . . . . Done
+Checking if CPU speed is above 300 MHz.   Actual 2593.905 MHz    Passed
+Checking swap space: must be greater than 512 MB.   Actual 4095 MB    Passed
+Checking temp space: must be greater than 300 MB.   Actual 1306 MB    Passed
+Preparing to launch the Oracle Universal Installer from /tmp/OraInstall2023-02-06_04-29-29AM
+Log: /tmp/OraInstall2023-02-06_04-29-29AM/install2023-02-06_04-29-29AM.log
+Copyright (c) 1996, 2020, Oracle and/or its affiliates. All rights reserved.
+Reading response file..
+Skipping Software Updates
+Starting check : CertifiedVersions
+Expected result: One of oracle-6, oracle-7, redhat-7, redhat-6, SuSE-11, SuSE-12, SuSE-15
+Actual Result: redhat-8.6
+Check complete. The overall result of this check is: Passed
+CertifiedVersions Check: Success.
+
+
+Starting check : CheckJDKVersion
+Expected result: 1.8.0_191
+Actual Result: 11.0.18
+Check complete. The overall result of this check is: Passed
+CheckJDKVersion Check: Success.
+
+
+Validations are enabled for this session.
+Verifying data
+Copying Files
+Percent Complete : 10
+Percent Complete : 20
+Percent Complete : 30
+Percent Complete : 40
+Percent Complete : 50
+Percent Complete : 60
+Percent Complete : 70
+Percent Complete : 80
+Percent Complete : 90
+Percent Complete : 100
+
+The installation of Oracle Fusion Middleware 14.1.1 WebLogic Server and Coherence 14.1.1.0.0 completed successfully.
+Logs successfully copied to /u01/app/oraInventory/logs.
+
+
+Some system prerequisite checks failed.
+You must fulfill these requirements before continuing.
+The log is located here: /tmp/OraInstall2023-02-06_08-05-54AM/launcher2023-02-06_08-05-54AM.log.
+[oracle@vm2 weblogic]$
+
+
+[oracle@vm2 ~]$ /u01/app/oracle/jdk-11.0.18/bin/java -Xmx1024m -jar /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_quick_generic.jar -silent -responseFile /u01/app/softwares/weblogic/wls.rsp -invPtrLoc /u01/app/softwares/weblogic/oraInst.loc
+Launcher log file is /tmp/OraInstall2023-02-06_08-08-25AM/launcher2023-02-06_08-08-25AM.log.
+Extracting the installer . . . . Done
+Checking if CPU speed is above 300 MHz.   Actual 2593.906 MHz    Passed
+Checking swap space: must be greater than 512 MB.   Actual 0 MB    Failed <<<<
+Checking temp space: must be greater than 300 MB.   Actual 4770 MB    Passed
+
+Some system prerequisite checks failed.
+You must fulfill these requirements before continuing.
+The log is located here: /tmp/OraInstall2023-02-06_08-08-25AM/launcher2023-02-06_08-08-25AM.log.
+[oracle@vm2 ~]$
+
+[oracle@vm2 ~]$ /u01/app/oracle/jdk-11.0.18/bin/java -Xmx1024m -jar /u01/app/softwares/weblogic/fmw_14.1.1.0.0_wls_lite_quick_generic.jar -silent -responseFile /u01/app/softwares/weblogic/wls.rsp -invPtrLoc /u01/app/softwares/weblogic/oraInst.loc
+Launcher log file is /tmp/OraInstall2023-02-06_08-13-18AM/launcher2023-02-06_08-13-18AM.log.
+Extracting the installer . . . . Done
+Checking if CPU speed is above 300 MHz.   Actual 2593.906 MHz    Passed
+Checking swap space: must be greater than 512 MB.   Actual 2047 MB    Passed
+Checking temp space: must be greater than 300 MB.   Actual 4511 MB    Passed
+Preparing to launch the Oracle Universal Installer from /tmp/OraInstall2023-02-06_08-13-18AM
+Log: /tmp/OraInstall2023-02-06_08-13-18AM/install2023-02-06_08-13-18AM.log
+
+*****************************************************
+
+
+Distribution Name : Oracle Fusion Middleware 14.1.1 WebLogic and Coherence Developer
+Distribution Version : 14.1.1.0.0
+
+Oracle Inventory : /u01/app/oraInventory
+
+Oracle Home : /u01/app/wls1411
+Java Home : /u01/app/oracle/jdk-11.0.18
+
+Note: Oracle Home not supplied (defaulted to <present working dir>/wls1411)
+
+*****************************************************
+
+Copyright (c) 1996, 2020, Oracle and/or its affiliates. All rights reserved.
+Reading response file..
+Skipping Software Updates
+Starting check : CertifiedVersions
+Expected result: One of oracle-6, oracle-7, redhat-7, redhat-6, SuSE-11, SuSE-12, SuSE-15
+Actual Result: redhat-8.6
+Check complete. The overall result of this check is: Passed
+CertifiedVersions Check: Success.
+
+
+Starting check : CheckJDKVersion
+Expected result: 1.8.0_191
+Actual Result: 11.0.18
+Check complete. The overall result of this check is: Passed
+CheckJDKVersion Check: Success.
+
+
+Validations are enabled for this session.
+Verifying data
+Copying Files
+Percent Complete : 10
+Percent Complete : 20
+Percent Complete : 30
+Percent Complete : 40
+Percent Complete : 50
+Percent Complete : 60
+Percent Complete : 70
+Percent Complete : 80
+Percent Complete : 90
+Percent Complete : 100
+
+The installation of Oracle Fusion Middleware 14.1.1 WebLogic and Coherence Developer 14.1.1.0.0 completed successfully.
+Logs successfully copied to /u01/app/wls1411/cfgtoollogs/oui.
+
+
+
+
+	readTemplate('/u01/app/wls1411/wlserver/common/templates/wlswls.jar')     ==>change this path if it is different . 
+	cd('Servers/AdminServer')
+	set('ListenAddress','')
+	set('ListenPort', 7001)
+	create('AdminServer','SSL')
+	cd('SSL/AdminServer')
+	set('Enabled', 'True')
+	set('ListenPort', 7002)
+	cd('/')
+	cd('Security/base_domain/User/weblogic')
+	cmo.setPassword('welcome1')
+	setOption('OverwriteDomain', 'true')
+	writeDomain('/u01/app/oracle/config/domains/testdomain1')   ==>verify this domain directory created 
+	closeTemplate()
+exit()
+
+
+
+[oracle@vm2 scripts]$ vi domain.xml
+[oracle@vm2 scripts]$ cat domain.xml
+        readTemplate('/u01/app/wls1411/wlserver/common/templates/wlswls.jar')
+        cd('Servers/AdminServer')
+        set('ListenAddress','')
+        set('ListenPort', 7001)
+        create('AdminServer','SSL')
+        cd('SSL/AdminServer')
+        set('Enabled', 'True')
+        set('ListenPort', 7002)
+        cd('/')
+        cd('Security/base_domain/User/weblogic')
+        cmo.setPassword('welcome1')
+        setOption('OverwriteDomain', 'true')
+        writeDomain('/u01/app/oracle/config/domains/testdomain1')
+        closeTemplate()
+        exit()
+
+[oracle@vm2 scripts]$ >domain.xml
+[oracle@vm2 scripts]$ vi dom
+[oracle@vm2 scripts]$ vi domain.xml
+[oracle@vm2 scripts]$ pwd
+/u01/app/scripts
+[oracle@vm2 scripts]$
+
+
+readTemplate('/u01/app/wls1411/wlserver/common/templates/wlswls.jar')
+cd('Servers/AdminServer')
+set('ListenAddress','')
+set('ListenPort', 7001)
+create('AdminServer','SSL')
+cd('SSL/AdminServer')
+set('Enabled', 'True')
+set('ListenPort', 7002)
+cd('/')
+cd('Security/base_domain/User/weblogic')
+cmo.setPassword('welcome1')
+setOption('OverwriteDomain', 'true')
+writeDomain('/u01/app/oracle/config/domains/testdomain1')
+closeTemplate()
+exit()
+
+
+
+[oracle@vm2 bin]$ ./wlst.sh /u01/app/scripts/domain.xml
+WARNING: This is a deprecated script. Please invoke the wlst.sh script under oracle_common/common/bin.
+
+Initializing WebLogic Scripting Tool (WLST) ...
+
+Welcome to WebLogic Server Administration Scripting Shell
+
+Type help() for help on available commands
+
+
+
+Exiting WebLogic Scripting Tool.
+
+[oracle@vm2 bin]$
+[oracle@vm2 bin]$ pwd
+/u01/app/wls1411/wlserver/common/bin
+[oracle@vm2 bin]$ cd ../..
+[oracle@vm2 wlserver]$ pwd
+/u01/app/wls1411/wlserver
+[oracle@vm2 wlserver]$ pwd
+/u01/app/wls1411/wlserver
+[oracle@vm2 wlserver]$ cd ../..
+[oracle@vm2 ~]$ ls -tlr
+total 36
+drwx------. 2 oracle oinstall 16384 Feb  6 07:18 lost+found
+drwxr-xr-x. 4 oracle oinstall  4096 Feb  6 07:34 softwares
+drwxrwx---. 6 oracle oinstall  4096 Feb  6 08:13 oraInventory
+drwxr-xr-x. 4 oracle oinstall  4096 Feb  6 08:33 oracle
+drwxr-xr-x. 2 oracle oinstall  4096 Feb  6 08:35 scripts
+drwxr-x---. 9 oracle oinstall  4096 Feb  6 08:37 wls1411
+[oracle@vm2 ~]$ pwd
+/u01/app
+[oracle@vm2 ~]$ cd oracle/
+[oracle@vm2 oracle]$ ls -tlr
+total 8
+drwxr-xr-x. 9 oracle oinstall 4096 Feb  6 07:44 jdk-11.0.18
+drwxr-xr-x. 3 oracle oinstall 4096 Feb  6 08:33 config
+[oracle@vm2 oracle]$ cd config
+[oracle@vm2 config]$ ls -tlr
+total 4
+drwxr-xr-x. 3 oracle oinstall 4096 Feb  6 08:33 domains
+[oracle@vm2 config]$ cd domains/
+[oracle@vm2 domains]$ ls -tlr
+total 4
+drwxr-xr-x. 12 oracle oinstall 4096 Feb  6 08:37 testdomain1
+[oracle@vm2 domains]$ cd testdomain1/
+[oracle@vm2 testdomain1]$ ls -tlr
+total 48
+-rw-r-----. 1 oracle oinstall  327 Feb 21  2020 fileRealm.properties
+drwxr-x---. 3 oracle oinstall 4096 Feb  6 08:37 common
+drwxr-x---. 2 oracle oinstall 4096 Feb  6 08:37 autodeploy
+drwxr-x---. 2 oracle oinstall 4096 Feb  6 08:37 lib
+drwxr-x---. 2 oracle oinstall 4096 Feb  6 08:37 console-ext
+drwxr-x---. 2 oracle oinstall 4096 Feb  6 08:37 security
+drwxr-x---. 3 oracle oinstall 4096 Feb  6 08:37 servers
+drwxr-x---. 8 oracle oinstall 4096 Feb  6 08:37 config
+-rwxr-x---. 1 oracle oinstall  258 Feb  6 08:37 startWebLogic.sh
+drwxr-x---. 6 oracle oinstall 4096 Feb  6 08:37 bin
+drwxr-x---. 2 oracle oinstall 4096 Feb  6 08:37 nodemanager
+drwxr-x---. 3 oracle oinstall 4096 Feb  6 08:37 init-info
+[oracle@vm2 testdomain1]$ cd bin
+[oracle@vm2 bin]$ ls -tlr
+total 92
+drwxr-x---. 2 oracle oinstall  4096 Feb  6 08:37 patching
+drwxr-x---. 2 oracle oinstall  4096 Feb  6 08:37 nodemanager
+drwxr-x---. 2 oracle oinstall  4096 Feb  6 08:37 service_migration
+drwxr-x---. 2 oracle oinstall  4096 Feb  6 08:37 server_migration
+-rwxr-x---. 1 oracle oinstall   794 Feb  6 08:37 setStartupEnv.sh
+-rwxr-x---. 1 oracle oinstall  8151 Feb  6 08:37 startWebLogic.sh
+-rwxr-x---. 1 oracle oinstall  2112 Feb  6 08:37 stopWebLogic.sh
+-rwxr-x---. 1 oracle oinstall  2783 Feb  6 08:37 startManagedWebLogic.sh
+-rwxr-x---. 1 oracle oinstall  2627 Feb  6 08:37 stopManagedWebLogic.sh
+-rwxr-x---. 1 oracle oinstall 15346 Feb  6 08:37 setDomainEnv.sh
+-rwxr-x---. 1 oracle oinstall  2640 Feb  6 08:37 generateArchive.sh
+-rwxr-x---. 1 oracle oinstall  1019 Feb  6 08:37 stopNodeManager.sh
+-rwxr-x---. 1 oracle oinstall  1088 Feb  6 08:37 startNodeManager.sh
+-rwxr-x---. 1 oracle oinstall   916 Feb  6 08:37 setNMJavaHome.sh
+-rwxr-x---. 1 oracle oinstall   825 Feb  6 08:37 stopRSDaemon.sh
+-rwxr-x---. 1 oracle oinstall   696 Feb  6 08:37 startRSDaemon.sh
+-rwxr-x---. 1 oracle oinstall  2458 Feb  6 08:37 startComponent.sh
+-rwxr-x---. 1 oracle oinstall  2468 Feb  6 08:37 restartComponent.sh
+-rwxr-x---. 1 oracle oinstall  2122 Feb  6 08:37 stopComponent.sh
+[oracle@vm2 bin]$ pwd
+/u01/app/oracle/config/domains/testdomain1/bin
+[oracle@vm2 bin]$ pwd
+/u01/app/oracle/config/domains/testdomain1/bin
+[oracle@vm2 bin]$
+
+
+[oracle@vm2 bin]$ nohup: ignoring input and appending output to 'nohup.out'
+
+[oracle@vm2 bin]$ ps -ef|grep -i weblogic
+oracle     14905   12705  0 08:42 pts/0    00:00:00 /bin/sh ./startWebLogic.sh
+oracle     14973   14905 81 08:42 pts/0    00:00:31 /u01/app/oracle/jdk-11.0.18/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /u01/app/wls1411/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=AdminServer -Djava.security.policy=/u01/app/wls1411/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/u01/app/wls1411/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/u01/app/wls1411/wlserver/server -Dweblogic.home=/u01/app/wls1411/wlserver/server weblogic.Server
+oracle     15061   12705  0 08:43 pts/0    00:00:00 grep --color=auto -i weblogic
+[oracle@vm2 bin]$
+
+
+/u01/app/oracle/config/domains/testdomain1/bin
+[oracle@vm2 bin]$ pwd
+/u01/app/oracle/config/domains/testdomain1/bin
+[oracle@vm2 bin]$ nohup ./startWebLogic.sh &
+[1] 14905
+[oracle@vm2 bin]$ nohup: ignoring input and appending output to 'nohup.out'
+
+[oracle@vm2 bin]$ ps -ef|grep -i weblogic
+oracle     14905   12705  0 08:42 pts/0    00:00:00 /bin/sh ./startWebLogic.sh
+oracle     14973   14905 81 08:42 pts/0    00:00:31 /u01/app/oracle/jdk-11.0.18/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /u01/app/wls1411/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=AdminServer -Djava.security.policy=/u01/app/wls1411/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/u01/app/wls1411/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/u01/app/wls1411/wlserver/server -Dweblogic.home=/u01/app/wls1411/wlserver/server weblogic.Server
+oracle     15061   12705  0 08:43 pts/0    00:00:00 grep --color=auto -i weblogic
+[oracle@vm2 bin]$ pwd
+/u01/app/oracle/config/domains/testdomain1/bin
+[oracle@vm2 bin]$ netstat -tulpn
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -
+tcp        0      0 0.0.0.0:5355            0.0.0.0:*               LISTEN      -
+tcp6       0      0 :::22                   :::*                    LISTEN      -
+tcp6       0      0 127.0.0.1:1527          :::*                    LISTEN      14972/java
+tcp6       0      0 ::1:7001                :::*                    LISTEN      14973/java
+tcp6       0      0 127.0.0.1:7001          :::*                    LISTEN      14973/java
+tcp6       0      0 10.1.0.4:7001           :::*                    LISTEN      14973/java
+tcp6       0      0 ::1:7002                :::*                    LISTEN      14973/java
+tcp6       0      0 127.0.0.1:7002          :::*                    LISTEN      14973/java
+tcp6       0      0 10.1.0.4:7002           :::*                    LISTEN      14973/java
+tcp6       0      0 :::5355                 :::*                    LISTEN      -
+udp        0      0 127.0.0.53:53           0.0.0.0:*                           -
+udp        0      0 0.0.0.0:68              0.0.0.0:*                           -
+udp        0      0 127.0.0.1:323           0.0.0.0:*                           -
+udp        0      0 0.0.0.0:5355            0.0.0.0:*                           -
+udp6       0      0 ::1:323                 :::*                                -
+udp6       0      0 :::5355                 :::*                                -
+[oracle@vm2 bin]$
+
