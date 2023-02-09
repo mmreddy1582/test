@@ -2,4 +2,4 @@ az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/cde04e39-
 
 az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/cde04e39-c5c8-40c6-ad3b-c4fe70668111"
 
-
+cde04e39-c5c8-40c6-ad3b-c4fe70668111
