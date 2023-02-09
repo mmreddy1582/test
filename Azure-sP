@@ -2,10 +2,4 @@ az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/cde04e39-
 
 az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/cde04e39-c5c8-40c6-ad3b-c4fe70668111"
 
-{
-  "appId": "227907c2-40b2-42cf-b4d9-eae2a99d9da2",
-  "displayName": "azure-cli-2023-02-08-01-55-28",
-  "password": "lrg8Q~H05ESLHehxM6FPRtEFdYKnO6bGrXKcVb7G",
-  "tenant": "06d71d1c-9068-407f-aed1-12bffdee390c"
 
-}
